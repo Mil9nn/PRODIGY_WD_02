@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stopwatch</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="stopwatch">
+        <div id="display">00:00:00</div>
+        <div class="buttons">
+            <button id="startStop">Start</button>
+            <button id="reset">Reset</button>
+            <button id="lap">Lap</button>
+        </div>
+        <ul id="lapList"></ul>
+    </div>
+
+    <script>
+        const display = document.getElementById('display');
+        const startStopBtn = document.getElementById('startStop');
+        const resetBtn = document.getElementById('reset');
+        const lapBtn = document.getElementById('lap');
+        const lapList = document.getElementById('lapList');
+
+        let startTime;
+        let elapsedTime = 0;
+        let timerInterval;
+        let isRunning = false;
+        let laps = [];
+
+        function startStop() {
+            if (!isRunning) {
+                // Start the stopwatch
+                startTime = Date.now() - elapsedTime;
+                timerInterval = setInterval(updateDisplay, 10);
+                startStopBtn.textContent = 'Pause';
+                startStopBtn.style.backgroundColor = '#FFC107';
+                isRunning = true;
+            } else {
+                // Pause the stopwatch
+                clearInterval(timerInterval);
+                startStopBtn.textContent = 'Start';
+                startStopBtn.style.backgroundColor = '#4CAF50';
+                isRunning = false;
+            }
+        }
+
+        function updateDisplay() {
+            elapsedTime = Date.now() - startTime;
+            display.textContent = formatTime(elapsedTime);
+        }
+
+        function formatTime(milliseconds) {
+            const totalSeconds = Math.floor(milliseconds / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            const centiseconds = Math.floor((milliseconds % 1000) / 10);
+
+            return `${pad(minutes)}:${pad(seconds)}:${pad(centiseconds)}`;
+        }
+
+        function pad(number) {
+            return number.toString().padStart(2, '0');
+        }
+
+        function reset() {
+            clearInterval(timerInterval);
+            display.textContent = '00:00:00';
+            elapsedTime = 0;
+            isRunning = false;
+            startStopBtn.textContent = 'Start';
+            startStopBtn.style.backgroundColor = '#4CAF50';
+            laps = [];
+            lapList.innerHTML = '';
+        }
+
+        function recordLap() {
+            if (isRunning) {
+                laps.push(formatTime(elapsedTime));
+                const lapItem = document.createElement('li');
+                lapItem.textContent = `Lap ${laps.length}: ${laps[laps.length - 1]}`;
+                lapList.appendChild(lapItem);
+            }
+        }
+
+        startStopBtn.addEventListener('click', startStop);
+        resetBtn.addEventListener('click', reset);
+        lapBtn.addEventListener('click', recordLap);
+    </script>
+</body>
+</html>
